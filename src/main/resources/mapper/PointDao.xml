@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.ty.cloudCourse.dao.PointDao">
+    <insert id="insertOne" parameterType="point" useGeneratedKeys="true" keyColumn="point_id" keyProperty="pointId">
+        INSERT INTO tb_point (
+        point_reason,point_num,create_time,student_id
+        )VALUES (
+        #{pointReason},#{pointNum},#{createTime},#{student.studentId}
+        )
+    </insert>
+
+    <update id="pointReackon" parameterType="point">
+        UPDATE tb_student_info
+        <set>
+            <if test="student != null">point_count=#{student.pointCount},</if>
+        </set>
+        WHERE student_id = #{student.studentId}
+    </update>
+
+</mapper>

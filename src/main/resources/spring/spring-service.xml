@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:tx="http://www.springframework.org/schema/tx"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+    http://www.springframework.org/schema/beans/spring-beans.xsd
+    http://www.springframework.org/schema/context
+    http://www.springframework.org/schema/context/spring-context.xsd
+    http://www.springframework.org/schema/tx
+    http://www.springframework.org/schema/tx/spring-tx.xsd">
+    <!-- 扫描service包下所有使用注解的类型 -->
+    <context:component-scan base-package="org.ty.cloudCourse.service"/>
+
+    <bean class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+        <property name="locations">
+            <list>
+                <value>classpath:jdbc.properties</value>
+                <value>classpath:redis.properties</value>
+            </list>
+        </property>
+    </bean>
+
+    <!-- 配置事务管理器 -->
+    <bean id="transactionManager"
+          class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+        <!-- 注入数据库连接池 -->
+        <property name="dataSource" ref="dataSource"/>
+    </bean>
+
+    <!-- 配置JedisPoolConfig -->
+    <bean id="jedisPoolConfig" class="redis.clients.jedis.JedisPoolConfig">
+        <property name="maxTotal" value="${redis.maxTotal}"/><!--最大连接数 100 -->
+        <property name="maxIdle" value="${redis.maxIdle}"/><!-- 最大空闲连接数 100 -->
+    </bean>
+
+    <!-- RedisFactory配置 -->
+    <bean id="redisFactory" class="org.ty.cloudCourse.util.RedisFactory">
+        <constructor-arg name="jedisPoolConfig" ref="jedisPoolConfig"/>
+        <constructor-arg name="HOST" value="${redis.host}"/>
+        <constructor-arg name="PORT" value="${redis.port}"/>
+        <constructor-arg name="PASSWD" value="${redis.passwd}"/>
+    </bean>
+
+    <!-- DatabaseSyncUtil配置 -->
+    <bean id="databaseSyncUtil" class="org.ty.cloudCourse.util.DatabaseSyncUtil">
+        <constructor-arg name="HOST" value="${redis.host}"/>
+        <constructor-arg name="PORT" value="${redis.port}"/>
+        <constructor-arg name="redisFactory" ref="redisFactory"/>
+    </bean>
+
+    <!-- spring配置文件上传 -->
+    <bean id="multipartResolver" class="org.springframework.web.multipart.commons.CommonsMultipartResolver">
+        <property name="maxUploadSize" value="104857600" />
+        <property name="maxInMemorySize" value="4096" />
+        <property name="defaultEncoding" value="UTF-8"/>
+    </bean>
+
+    <!-- 配置基于注解的声明式事务 -->
+    <tx:annotation-driven transaction-manager="transactionManager"/>
+</beans>

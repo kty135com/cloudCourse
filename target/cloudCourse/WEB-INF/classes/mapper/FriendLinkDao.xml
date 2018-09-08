@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.ty.cloudCourse.dao.FriendLinkDao">
+
+    <insert id="insertOne" parameterType="friendLink" useGeneratedKeys="true" keyProperty="linkId"
+            keyColumn="link_id">
+        INSERT INTO tb_friend_link(
+        link_name,link_url,priority,click_count
+        )VALUES (
+        #{linkName},#{linkUrl},#{priority},#{clickCount}
+        )
+    </insert>
+
+    <select id="queryFriendLink" resultType="friendLink">
+        SELECT * FROM tb_friend_link ORDER BY priority
+    </select>
+
+    <update id="updateOne" parameterType="friendLink">
+        UPDATE tb_friend_link
+        <set>
+            <if test="linkName != null">link_name = #{linkName},</if>
+            <if test="linkUrl != null">link_url = #{linkUrl},</if>
+            <if test="linkName != null">link_name = #{linkName},</if>
+            <if test="priority != null">priority = #{priority},</if>
+            <if test="clickCount != null">click_count = #{clickCount},</if>
+        </set>
+        WHERE link_id = #{linkId}
+    </update>
+
+    <delete id="deleteOne" parameterType="friendLink">
+        DELETE FROM tb_friend_link WHERE link_id = #{linkId}
+    </delete>
+
+    <select id="getOneById" parameterType="friendLink" resultType="friendLink">
+        SELECT * FROM tb_friend_link WHERE link_id = #{linkId}
+    </select>
+</mapper>

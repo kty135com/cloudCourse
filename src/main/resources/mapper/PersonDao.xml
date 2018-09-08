@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.ty.cloudCourse.dao.PersonDao">
+
+    <resultMap id="personMap" type="person">
+        <id property="userId" column="user_id"/>
+        <result property="userName" column="username"/>
+        <result property="password" column="password"/>
+        <result property="realName" column="realname"/>
+        <result property="enableStatus" column="enable_status"/>
+        <result property="userHeadImg" column="user_head_img"/>
+        <association property="parentInfo" column="parent_id" javaType="person" select="getParentById"/>
+    </resultMap>
+    <select id="getParentById" resultType="person" parameterType="person">
+        SELECT * FROM tb_person_info WHERE user_id = #{userId}
+    </select>
+
+    <select id="querySchool" resultMap="personMap">
+        SELECT * FROM tb_person_info WHERE user_type = 1
+    </select>
+
+    <select id="login" resultType="person" parameterType="person">
+        SELECT * FROM tb_person_info
+        WHERE username = #{userName} AND password = #{password}
+    </select>
+
+    <select id="getOneById" parameterType="person"
+            resultMap="personMap">
+        SELECT * FROM tb_person_info
+        WHERE user_id = #{userId}
+    </select>
+
+    <sql id="personFields">
+        user_id,username,password,user_type,realname,user_head_img,enable_status
+    </sql>
+
+    <insert id="insertOne" useGeneratedKeys="true" keyColumn="user_id" keyProperty="userId">
+        INSERT INTO tb_person_info(
+        <include refid="personFields"/>
+        )
+        VALUES (
+        #{userId},#{userName},#{password},#{userType},#{realName},#{userHeadImg},#{enableStatus}
+        )
+    </insert>
+
+    <delete id="deleteOne" parameterType="person">
+        DELETE FROM tb_person_info WHERE user_id =#{userId}
+    </delete>
+
+    <update id="updateOne" parameterType="person">
+        UPDATE tb_person_info
+        <set>
+            <if test="userName != null">username=#{userName},</if>
+            <if test="password != null">password=#{password},</if>
+            <if test="userType != null">user_type=#{userType},</if>
+            <if test="realName != null">realname=#{realName},</if>
+            <if test="userHeadImg != null">user_head_img=#{userHeadImg},</if>
+            <if test="enableStatus != null">enable_status=#{enableStatus},</if>
+            <if test="parentInfo != null">parent_id=#{parentInfo.userId},</if>
+        </set>
+        WHERE user_id = #{userId}
+    </update>
+
+    <select id="queryTeacherBySchool" resultMap="personMap" parameterType="person">
+        SELECT * FROM tb_person_info WHERE parent_id=#{userId}
+    </select>
+
+    <select id="queryPersonByType" resultMap="personMap">
+        SELECT * FROM tb_person_info WHERE user_type = #{userType}
+    </select>
+
+</mapper>

@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<users>
+    <user id="1">
+        <name>小王</name>
+        <age>15</age>
+        <school>日职</school>
+    </user>
+    <user id="2">
+        <name>花花</name>
+        <age>20</age>
+        <school>实验学校</school>
+    </user>
+</users>

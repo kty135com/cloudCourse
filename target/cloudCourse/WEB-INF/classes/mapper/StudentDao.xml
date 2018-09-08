@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.ty.cloudCourse.dao.StudentDao">
+
+    <resultMap id="studentMap" type="student">
+        <id property="studentId" column="student_id"/>
+        <result property="userName" column="username"/>
+        <result property="password" column="password"/>
+        <result property="realName" column="realname"/>
+        <result property="age" column="age"/>
+        <result property="sex" column="sex"/>
+        <result property="enableStatus" column="enable_status"/>
+        <result property="tel" column="tel"/>
+        <result property="userHeadImg" column="user_head_img"/>
+        <result property="birth" column="birth"/>
+        <result property="pointCount" column="point_count"/>
+        <association property="clazz" column="class_id" javaType="class" select="getClassById"/>
+    </resultMap>
+    <select id="getClassById" resultType="class" parameterType="class">
+        SELECT * FROM tb_class WHERE class_id = #{classId}
+    </select>
+
+    <select id="login" parameterType="student"
+            resultMap="studentMap">
+        SELECT * FROM tb_student_info
+        WHERE username = #{userName} AND password = #{password}
+    </select>
+
+    <select id="getOneById" resultMap="studentMap">
+        SELECT * FROM tb_student_info
+        WHERE student_id = #{studentId}
+    </select>
+
+    <insert id="insertOne" parameterType="student" useGeneratedKeys="true">
+        INSERT INTO tb_student_info(
+        username,password,realname,age,sex,enable_status,tel,birth,user_head_img
+        )
+        VALUES (
+        #{userName},#{password},#{realName},#{age},#{sex},#{enableStatus},#{tel},#{birth},#{userHeadImg}
+        )
+    </insert>
+
+    <delete id="deleteOne" parameterType="student">
+        DELETE FROM tb_student_info WHERE student_id = #{studentId}
+    </delete>
+
+
+    <update id="updateOne" parameterType="student">
+        UPDATE tb_student_info
+        <set>
+            <if test="userName != null">username=#{userName},</if>
+            <if test="password != null">password=#{password},</if>
+            <if test="realName != null">realname=#{realName},</if>
+            <if test="age != null">age=#{age},</if>
+            <if test="sex != null">sex=#{sex},</if>
+            <if test="enableStatus != null">enable_status=#{enableStatus},</if>
+            <if test="tel != null">tel=#{tel},</if>
+            <if test="userHeadImg != null">user_head_img=#{userHeadImg},</if>
+            <if test="pointCount != null">point_count=#{pointCount},</if>
+            <if test="clazz != null">class_id=#{clazz.classId},</if>
+        </set>
+        WHERE student_id = #{studentId}
+    </update>
+
+    <select id="queryStudentByClass" parameterType="class" resultMap="studentMap">
+        SELECT * FROM tb_student_info WHERE class_id=#{classId}
+    </select>
+    <select id="queryStudent" resultMap="studentMap">
+        SELECT * FROM tb_student_info
+    </select>
+</mapper>

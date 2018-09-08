@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.ty.cloudCourse.dao.SignDao">
+
+    <insert id="insertOne" parameterType="sign" useGeneratedKeys="true">
+        INSERT INTO tb_class_sign(
+        sign_date,sign_count,class_id,course_id
+        )VALUES (
+        #{signDate},#{signCount},#{clazz.classId},#{course.courseId}
+        )
+    </insert>
+
+    <select id="getOneById" resultType="sign" parameterType="sign">
+        SELECT * FROM tb_class_sign WHERE sign_id = #{signId}
+    </select>
+    <select id="getCsByWhere" resultType="sign" parameterType="sign">
+        SELECT * FROM tb_class_sign
+        <where>
+            <if test="clazz != null">AND class_id = #{clazz.classId}</if>
+            <if test="course != null">AND course_id = #{course.courseId}</if>
+            <if test="signDate != null">AND sign_date = #{signDate}</if>
+        </where>
+    </select>
+</mapper>

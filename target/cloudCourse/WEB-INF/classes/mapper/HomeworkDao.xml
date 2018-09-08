@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.ty.cloudCourse.dao.HomeworkDao">
+
+    <resultMap id="homeworkMap" type="homework">
+        <id column="homework_id" property="homeworkId"/>
+        <result column="homework_desc" property="homeworkDesc"/>
+        <result column="create_time" property="createTime"/>
+        <result column="max_point_add" property="maxPointAdd"/>
+        <association property="clazz" column="class_id" javaType="class" select="getClassById"/>
+        <association property="course" column="course_id" javaType="course" select="getCourseById"/>
+        <association property="teacher" column="teacher_id" javaType="person" select="getTeacherById"/>
+    </resultMap>
+    <select id="getClassById" parameterType="class" resultType="class">
+        SELECT * FROM tb_class WHERE class_id = #{classId}
+    </select>
+    <select id="getTeacherById" parameterType="person" resultType="person">
+        SELECT * FROM tb_person_info WHERE user_id = #{userId}
+    </select>
+    <select id="getCourseById" parameterType="course" resultType="course">
+        SELECT * FROM tb_course WHERE course_id = #{courseId}
+    </select>
+
+    <insert id="insertOne" useGeneratedKeys="true" keyColumn="homework_id" keyProperty="homeworkId"
+            parameterType="homework">
+        INSERT INTO tb_homework(
+        homework_desc,create_time,max_point_add,class_id,teacher_id,course_id
+        )VALUES (
+        #{homeworkDesc},#{createTime},#{maxPointAdd},#{clazz.classId},#{teacher.userId},#{course.courseId}
+        )
+    </insert>
+
+    <delete id="deleteOne" parameterType="homework">
+        DELETE FROM tb_homework WHERE homework_id = #{homeworkId}
+    </delete>
+
+    <update id="updateOne" parameterType="homework">
+        UPDATE tb_homework
+        <set>
+            <if test="homeworkDesc != null">homework_desc = #{homeworkDesc},</if>
+            <if test="maxPointAdd != null">max_point_add = #{maxPointAdd},</if>
+        </set>
+        WHERE homework_id = #{homeworkId}
+    </update>
+
+    <select id="getOneById" parameterType="tuple" resultMap="homeworkMap">
+        SELECT * FROM tb_homework WHERE homework_id = #{homeworkId}
+    </select>
+
+    <select id="queryHomeworkListByClassAndCreateTime" parameterType="tuple" resultMap="homeworkMap">
+        SELECT * FROM tb_homework WHERE class_id = #{two.a.classId} AND create_time = #{two.b}
+    </select>
+
+    <select id="getCctByWhere" resultMap="homeworkMap">
+        SELECT * FROM tb_class_course_teacher_link
+        <where>
+            <if test="createTime != null">AND create_time = #{createTime}</if>
+            <if test="clazz != null">AND class_id = #{clazz.classId}</if>
+            <if test="course != null">AND course_id = #{course.courseId}</if>
+            <if test="teacher != null">AND teacher_id = #{teacher.userId}</if>
+        </where>
+    </select>
+    <select id="getHWByWhere" resultMap="homeworkMap">
+        SELECT * FROM tb_homework
+        <where>
+            <if test="createTime != null">AND create_time = #{createTime}</if>
+            <if test="clazz != null">AND class_id = #{clazz.classId}</if>
+            <if test="course != null">AND course_id = #{course.courseId}</if>
+            <if test="teacher != null">AND teacher_id = #{teacher.userId}</if>
+        </where>
+    </select>
+
+</mapper>

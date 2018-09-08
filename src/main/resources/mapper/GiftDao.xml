@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.ty.cloudCourse.dao.GiftDao">
+
+    <resultMap id="giftMap" type="gift">
+        <id column="gift_id" property="giftId"/>
+        <result column="gift_name" property="giftName"/>
+        <result column="gift_desc" property="giftDesc"/>
+        <result column="priority" property="priority"/>
+        <result column="gift_count" property="giftCount"/>
+        <result column="gift_num" property="giftNum"/>
+        <result column="gift_point" property="giftPoint"/>
+        <result column="create_time" property="createTime"/>
+        <association property="clazz" column="class_id" javaType="class" select="org.ty.cloudCourse.dao.ClassDao.getOneById"/>
+    </resultMap>
+
+    <insert id="insertOne" useGeneratedKeys="true" keyColumn="gift_id" keyProperty="giftId" parameterType="gift">
+        INSERT INTO tb_gift(
+        gift_id,gift_name,gift_desc,priority,gift_count,gift_num,gift_point,create_time,class_id
+        )VALUES (
+        #{giftId},#{giftName},#{giftDesc},#{priority},#{giftCount},#{giftNum},#{giftPoint},#{createTime},#{clazz.classId}
+        )
+    </insert>
+
+    <delete id="deleteOne" parameterType="gift">
+        DELETE FROM tb_gift WHERE gift_id = #{giftId}
+    </delete>
+
+    <select id="getGiftListByClass" parameterType="class" resultMap="giftMap">
+        SELECT * FROM tb_gift WHERE class_id = #{classId} ORDER BY priority
+    </select>
+
+    <select id="getOneById" parameterType="gift" resultMap="giftMap">
+        SELECT * FROM tb_gift WHERE gift_id = #{giftId}
+    </select>
+
+    <update id="updateOne" parameterType="gift">
+        UPDATE tb_gift
+        <set>
+            <if test="giftName != null">gift_name = #{giftName},</if>
+            <if test="giftDesc != null">gift_desc = #{giftDesc},</if>
+            <if test="priority != null">priority = #{priority},</if>
+            <if test="giftCount != null">gift_count = #{giftCount},</if>
+            <if test="giftNum != null">gift_num = #{giftNum},</if>
+            <if test="giftPoint != null">gift_point = #{giftPoint},</if>
+        </set>
+        WHERE gift_id = #{giftId}
+    </update>
+
+</mapper>

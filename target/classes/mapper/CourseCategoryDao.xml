@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="org.ty.cloudCourse.dao.CourseCategoryDao">
+
+    <resultMap id="categoryMap" type="courseCategory">
+        <id column="course_category_id" property="courseCategoryId"/>
+        <result column="category_name" property="categoryName"/>
+        <result column="category_desc" property="categoryDesc"/>
+        <result column="priority" property="priority"/>
+        <result column="create_time" property="createTime"/>
+        <result column="last_edit_time" property="lastEditTime"/>
+        <association property="school" column="school_id" javaType="person" select="getSchoolById"/>
+    </resultMap>
+    <select id="getSchoolById" resultType="person" parameterType="person">
+        SELECT * FROM tb_person_info WHERE user_id = #{userId}
+    </select>
+
+    <insert id="insertOne" useGeneratedKeys="true" keyColumn="course_category_id"
+            keyProperty="courseCategoryId" parameterType="courseCategory">
+        INSERT INTO tb_course_category(
+        category_name,category_desc,priority,create_time,last_edit_time,school_id
+        )VALUES (
+        #{categoryName},#{categoryDesc},#{priority},#{createTime},#{lastEditTime},#{school.userId}
+        )
+    </insert>
+
+    <delete id="deleteOne" parameterType="courseCategory">
+        DELETE FROM tb_course_category WHERE course_category_id = #{courseCategoryId}
+    </delete>
+
+    <select id="getOneById" parameterType="courseCategory" resultMap="categoryMap">
+        SELECT * FROM tb_course_category WHERE course_category_id = #{courseCategoryId}
+    </select>
+
+    <select id="getCategoryBySchool" parameterType="person" resultMap="categoryMap">
+        SELECT * FROM tb_course_category WHERE school_id = #{userId}
+    </select>
+
+    <update id="updateOne" parameterType="courseCategory">
+        UPDATE tb_course_category
+        <set>
+            <if test="categoryName != null">category_name = #{categoryName},</if>
+            <if test="categoryDesc != null">category_desc = #{categoryDesc},</if>
+            <if test="priority != null">priority = #{priority},</if>
+            <if test="lastEditTime != null">last_edit_time = #{lastEditTime},</if>
+            <if test="categoryName != null">category_name = #{categoryName},</if>
+        </set>
+        WHERE course_category_id = #{courseCategoryId}
+    </update>
+</mapper>

@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.ty.cloudCourse.dao.ClassDao">
+
+    <resultMap id="classMap" type="class">
+        <id property="classId" column="class_id"/>
+        <result property="className" column="class_name"/>
+        <association property="school" column="school_id" javaType="person" select="getSchoolById"/>
+    </resultMap>
+    <select id="getSchoolById" resultType="person" parameterType="person">
+        SELECT * FROM tb_person_info WHERE user_id = #{userId}
+    </select>
+
+    <insert id="insertOne" parameterType="class" useGeneratedKeys="true"
+            keyColumn="class_id" keyProperty="classId">
+        INSERT INTO tb_class(
+          class_name,school_id
+        )VALUES (
+          #{className},#{school.userId}
+        )
+    </insert>
+
+    <delete id="deleteOne" parameterType="class">
+        DELETE FROM tb_class WHERE class_id=#{classId}
+    </delete>
+
+    <update id="updateOne" parameterType="class">
+        UPDATE tb_class
+        <set>
+            <if test="className != null">class_name = #{className},</if>
+        </set>
+        WHERE class_id = #{classId}
+    </update>
+
+    <select id="getClassBySchool" parameterType="person" resultMap="classMap">
+        SELECT * FROM tb_class WHERE school_id = #{userId}
+    </select>
+
+    <select id="getOneById" parameterType="class" resultMap="classMap">
+        SELECT * FROM tb_class WHERE class_id = #{classId}
+    </select>
+
+    <select id="queryTeacherByClass" parameterType="class" resultType="person">
+        SELECT * FROM tb_person_info WHERE user_id in (SELECT teacher_id FROM tb_class_teacher_link WHERE class_id = #{classId})
+    </select>
+    <select id="getCla" resultType="class" parameterType="class">
+        select * from tb_class where class_name like #{className}
+    </select>
+
+</mapper>

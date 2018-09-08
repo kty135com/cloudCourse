@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.ty.cloudCourse.dao.ColumnDao">
+    <resultMap id="columnMap" type="column">
+        <id property="columnId" column="column_id"/>
+        <result property="columnName" column="column_name"/>
+        <result property="columnDesc" column="column_desc"/>
+        <result property="priority" column="priority"/>
+        <association property="personInfo" column="user_id" javaType="person" select="org.ty.cloudCourse.dao.PersonDao.getOneById"/>
+        <association property="parentColumn" column="parent_id" javaType="column" select="getColumnByParentId"/>
+    </resultMap>
+    <select id="getColumnByParentId" parameterType="column" resultMap="columnMap">
+        SELECT * FROM tb_column WHERE column_id = #{parent_id}
+    </select>
+
+    <select id="getOneById" parameterType="column" resultType="column">
+        SELECT * FROM tb_column WHERE column_id = #{columnId}
+    </select>
+    <select id="queryParentColumnBySchool" parameterType="person" resultMap="columnMap">
+        SELECT * FROM tb_column WHERE user_id = #{userId} AND parent_id IS NULL
+    </select>
+    <select id="queryAllColumnBySchool" parameterType="person" resultMap="columnMap">
+        SELECT * FROM tb_column WHERE user_id = #{userId}
+    </select>
+
+    <insert id="insertOne" parameterType="column" useGeneratedKeys="true">
+        INSERT INTO tb_column(
+         column_name,column_desc,priority,user_id,parent_id
+        )VALUES (
+        #{columnName},#{columnDesc},#{priority},#{personInfo.userId},#{parentColumn.columnId}
+        )
+    </insert>
+
+
+    <update id="updateOne" parameterType="column" keyColumn="column_id" keyProperty="columnId">
+        UPDATE tb_column
+        <set>
+            <if test="columnName != null">column_name = #{columnName},</if>
+            <if test="columnDesc != null">column_desc = #{columnDesc},</if>
+            <if test="priority != null">priority = #{priority},</if>
+            <if test="personInfo != null">user_id = #{personInfo.userId},</if>
+            <if test="parentColumn != null">parent_id = #{parentColumn.columnId},</if>
+        </set>
+        WHERE column_id = #{columnId}
+    </update>
+
+    <delete id="deleteOne" parameterType="column">
+        DELETE FROM tb_column WHERE column_id = #{columnId}
+    </delete>
+</mapper>

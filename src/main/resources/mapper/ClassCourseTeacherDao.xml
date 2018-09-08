@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.ty.cloudCourse.dao.ClassCourseTeacherDao">
+
+    <resultMap id="courseMap" type="course">
+        <id property="courseId" column="course_id"/>
+        <result property="courseName" column="course_name"/>
+        <result property="courseDesc" column="course_desc"/>
+        <result property="imgPath" column="img_path"/>
+        <result property="coursePrice" column="course_price"/>
+        <result property="maxStudentCount" column="max_student_count"/>
+        <result property="startTime" column="start_time"/>
+        <result property="endTime" column="end_time"/>
+        <association property="courseCategory" column="course_category_id" javaType="courseCategory"
+                     select="getCategoryByCourse"/>
+    </resultMap>
+    <select id="getCategoryByCourse" resultType="courseCategory">
+        SELECT * FROM tb_course_category WHERE course_category_id = #{courseCategoryId}
+    </select>
+    <resultMap id="ccMap" type="classCourseTeacher">
+        <result property="createTime" column="create_time"/>
+        <association property="clazz" column="class_id" javaType="class" select="getClassById"/>
+        <association property="course" column="course_id" javaType="course" select="getCourseById"/>
+    </resultMap>
+    <resultMap id="cctMap" type="classCourseTeacher">
+        <result property="createTime" column="create_time"/>
+        <result property="editTime" column="edit_time"/>
+        <association property="clazz" column="class_id" javaType="class" select="getClassById"/>
+        <association property="course" column="course_id" javaType="course" select="getCourseById"/>
+        <association property="teacher" column="teacher_id" javaType="person" select="getTeacherById"/>
+    </resultMap>
+
+    <select id="getClassById" parameterType="class" resultType="class">
+        SELECT * FROM tb_class WHERE class_id = #{classId}
+    </select>
+    <select id="getCourseById" parameterType="course" resultMap="courseMap">
+        SELECT * FROM tb_course WHERE course_id = #{courseId}
+    </select>
+    <select id="getTeacherById" parameterType="person" resultType="person">
+        SELECT * FROM tb_person_info WHERE user_id = #{teacherId}
+    </select>
+
+    <insert id="addCc" useGeneratedKeys="false" parameterType="classCourseTeacher">
+        INSERT INTO tb_class_course_teacher_link(
+        class_id,course_id,create_time
+        )VALUES (
+        #{clazz.classId},#{course.courseId},#{createTime}
+        )
+    </insert>
+
+    <delete id="delCc" parameterType="classCourseTeacher">
+        DELETE FROM tb_class_course_teacher_link WHERE class_id = #{clazz.classId} AND course_id = #{course.courseId}
+    </delete>
+
+    <update id="setTeacherByCc" parameterType="classCourseTeacher">
+        UPDATE tb_class_course_teacher_link
+        <set>
+            <if test="teacher!= null">teacher_id = #{teacher.userId},</if>
+            <if test="editTime!= null">edit_time = #{editTime},</if>
+        </set>
+        WHERE class_id = #{clazz.classId} AND course_id = #{course.courseId}
+    </update>
+
+    <select id="cctlist" resultMap="cctMap">
+        SELECT * FROM tb_class_course_teacher_link
+    </select>
+
+    <select id="queryCourseByClass" parameterType="class" resultType="course">
+        SELECT * FROM tb_course WHERE course_id IN (SELECT course_id FROM tb_class_course_teacher_link WHERE class_id = #{classId})
+    </select>
+
+    <select id="getTeacherByCc" parameterType="classCourseTeacher" resultType="person">
+        SELECT * FROM tb_person_info WHERE user_id IN (SELECT teacher_id FROM tb_class_course_teacher_link WHERE class_id = #{clazz.classId} AND course_id = #{course.courseId})
+    </select>
+
+    <select id="queryClassByTeacher" parameterType="person" resultType="class">
+        SELECT * FROM tb_class WHERE class_id IN (SELECT class_id FROM tb_class_course_teacher_link )
+    </select>
+    <select id="getCcByTeacher" parameterType="person" resultMap="cctMap">
+        SELECT * FROM tb_class_course_teacher_link WHERE teacher_id = #{userId}
+    </select>
+</mapper>
